@@ -499,7 +499,8 @@ AdamBomb = AdamBomb.reset_index(drop = True)
 #AdamBomb.to_csv("RPPF_%s.csv" %(today)) fix this for archive.
 AdamBomb.to_csv("RPPF_UPDATED_RW4.csv")
 AdamBomb
-    
+AdamBomb.to_csv("RPPF_Archive_%s.csv" %(today))    
+AdamBomb    
 
 # %% [markdown]
 # Checking these values against spreadsheet
