@@ -434,6 +434,7 @@ AdamBomb["StRDE Rank"] = AdamBomb["StRDE"].rank(ascending=True).astype(int)
 
 def StRDEplus(row):
     return ((row["StREM Rank"] + row["StRDE Rank"])/2)
+    
 AdamBomb["StRDE+ Rank"] = AdamBomb.apply(StRDEplus, axis =1)
 # StRDE+ Rank is the only StRDE+ row
 
