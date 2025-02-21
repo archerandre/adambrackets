@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*- 
+"""
+Created on Thu Feb 20 12:55:12
+
+@author: adam
+"""
+
+import pandas as pd
+
+# Define first-round matchups (Round of 64, excluding play-in games)
+first_round_matchups = {
+    1: 16, 2: 15, 3: 14, 4: 13, 5: 12, 6: 11, 7: 10, 8: 9
+}
+
+def calculate_matchup_success_rate_all_columns_first_round(file_path):
+    df = pd.read_csv(file_path)
+
+    # Identify numerical columns (excluding Year, Seed, and Wins)
+    numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
+    numeric_columns = [col for col in numeric_columns if col not in ["Year", "Wins"]]
+
+    total_games = 0
+    correct_predictions = {col: 0 for col in numeric_columns}  # Track correct predictions for each column
+
+    for year in df["Year"].unique():
+        year_data = df[df["Year"] == year]
+
+        for region in ["E", "M", "S", "W"]:
+            region_teams = year_data[year_data["Region"] == region]
+
+            # **First Round (Round of 64)**
+            for high_seed, low_seed in first_round_matchups.items():
+                high_team = region_teams[region_teams["Seed"] == high_seed]
+                low_team = region_teams[region_teams["Seed"] == low_seed]
+
+                if not high_team.empty and not low_team.empty:
+                    winner = high_team if high_team["Wins"].values[0] > low_team["Wins"].values[0] else low_team
+                    total_games += 1  # Count all first-round games
+
+                    # **Compare each rating column to track success**
+                    for col in numeric_columns:
+                        higher_rating_team = high_team if high_team[col].values[0] > low_team[col].values[0] else low_team
+                        if winner["Team"].values[0] == higher_rating_team["Team"].values[0]:
+                            correct_predictions[col] += 1
+
+    # **Calculate success rates for all rating columns**
+    success_rates = {col: (correct_predictions[col] / total_games) * 100 if total_games > 0 else 0 for col in numeric_columns}
+
+    # **Print the total number of first-round games analyzed**
+    print(f"\nTotal First-Round Games Analyzed: {total_games}")
+
+    # **Print results in console**
+    print("\nFirst-Round Success Rates by Column:")
+    for col, rate in success_rates.items():
+        print(f"{col}: {rate:.2f}%")
+
+    # **Save results to CSV**
+    output_df = pd.DataFrame(list(success_rates.items()), columns=["Rating Column", "Success Rate (%)"])
+    output_df.to_csv("first_round_success_rates.csv", index=False)
+
+    print("\nFirst-round success rates have been saved to 'first_round_success_rates.csv'")
+
+# Example usage
+calculate_matchup_success_rate_all_columns_first_round("RPPF_RW4_Tournament_Data.csv")
