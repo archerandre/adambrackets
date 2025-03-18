@@ -56,9 +56,10 @@ def calculate_matchup_success_rate(file_path):
                     high_team = region_teams[region_teams["Seed"] == high_seed]
                     low_team = region_teams[region_teams["Seed"] == low_seed]
 
+                    #Compare number of wins in tournament (6 for champion)
                     if not high_team.empty and not low_team.empty:
                         winner = high_team if high_team["Wins"].values[0] > low_team["Wins"].values[0] else low_team
-                        advancing_teams[region][1].append(winner)
+                        advancing_teams[region][1].append(winner) #moving winner to next round
                         total_games += 1
 
                         # **Compare rating values**
@@ -121,10 +122,11 @@ def calculate_matchup_success_rate(file_path):
         results[rating_col] = success_rate
 
     # Convert results dictionary to a DataFrame and export to CSV
-    output_df = pd.DataFrame(list(results.items()), columns=["Rating Column", "Success Rate (%)"])
+    output_df = pd.DataFrame(list(results.items()),
+                              columns=["Rating Column", "Success Rate (%)"]).sort_values(by="Success Rate (%)", ascending=False).reset_index(drop=True)
     output_df.to_csv("ALL_success_rates_RW4.csv", index=False)
-
+    print(output_df)
     print("Success rates have been saved to 'ALL_success_rates_RW4.csv'")
 
 # Example usage
-calculate_matchup_success_rate("RPPF_RW4_Tournament_Data.csv")
+calculate_matchup_success_rate("2-20-25/RPPF_RW4_Tournament_Data.csv")
